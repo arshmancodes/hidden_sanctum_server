@@ -1,7 +1,6 @@
 {
   "name": "hidden_sanctum_server",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,12 +8,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
-    "fs": "^0.0.1-security",
-    "mongoose": "^6.5.2",
-    "multer": "^1.4.5-lts.1",
-    "nodemon": "^2.0.19",
-    "ssh2-sftp-client": "^9.0.3"
-  }
+    "mongoose": "^6.5.3",
+    "nodemon": "^2.0.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arshmancodes/hidden_sanctum_server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arshmancodes/hidden_sanctum_server/issues"
+  },
+  "homepage": "https://github.com/arshmancodes/hidden_sanctum_server#readme",
+  "description": ""
 }
