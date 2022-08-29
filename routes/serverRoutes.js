@@ -3,7 +3,11 @@ const router = express.Router();
 
 const serverController = require('../controllers/serverController');
 
-router.get('/', serverController.getAll);
+
+router.post('/addServer', serverController.postServer);
+router.get('/getAll', serverController.getAll);
+router.get('/paidServers', serverController.paidServers);
+router.get('/freeServers', serverController.freeServers);
 
 
 
