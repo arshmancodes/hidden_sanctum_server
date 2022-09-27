@@ -4,6 +4,27 @@ const bcrypt = require('bcrypt');
 
 
 
+exports.checkUser = (req, res, next) => {
+    db.execute("SELECT * FROM users where username = ?", [req.body.username]).then(([rows, fieldData]) => {
+        if(rows.length > 0)
+        {
+            res.status(502).json({
+                message: "The username already exists",
+                success : false,
+            })
+        }
+        else
+        {
+            res.status(200).json({
+                success: true,
+                message: "The username is available",
+                data: rows,
+            })
+        }
+        
+    })
+}
+
 exports.postAuth = (req, res, next) => {
 
 
@@ -26,7 +47,7 @@ exports.postAuth = (req, res, next) => {
         }
         else
         {
-            db.execute('INSERT INTO users(name, email_address, password, gender, fcmToken) VALUES (?, ?, ?, ?, ?)', [name, email_address, password, gender, fcmToken]).then(([rows, fieldData]) => {
+            db.execute('INSERT INTO users(name, email_address, password, gender, fcmToken, address, username, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, gender, fcmToken, req.body.address, req.body.username, req.body.phone]).then(([rows, fieldData]) => {
                 res.status(200).json({
                     success: true,
                     data : rows,
