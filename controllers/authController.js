@@ -47,7 +47,7 @@ exports.postAuth = (req, res, next) => {
         }
         else
         {
-            db.execute('INSERT INTO users(name, email_address, password, gender, fcmToken, address, username, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, gender, fcmToken, req.body.address, req.body.username, req.body.phone]).then(([rows, fieldData]) => {
+            db.execute('INSERT INTO users(name, email_address, password, fcmToken, address, username, phone, isVerified, isPremium, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.address, req.body.username, req.body.phone, req.body.isVerified, req.body.isPremium, req.body.points]).then(([rows, fieldData]) => {
                 res.status(200).json({
                     success: true,
                     data : rows,
