@@ -1,4 +1,5 @@
 const db = require('../utils/database');
+const nodemailer = require('nodemailer');
 const { genSaltSync, hashSync, compareSync } = require('bcrypt');
 const bcrypt = require('bcrypt');
 
@@ -105,5 +106,46 @@ exports.login = (req, res, next) => {
                 })
             }
         }
+        else
+        {
+            res.status(200).json({
+                success: false,
+                message: "User not Found"
+            })
+        }
     })
+}
+
+exports.sendMail = (req, res, next) => {
+    
+
+    var transporter = nodemailer.createTransport({
+        host: "server2.needcloudhost.com",
+        port: 587,
+        secure: false, // upgrade later with STARTTLS
+        auth: {
+          user: "hsvpn@codeminer.co",
+          pass: "CodeMiners@123",
+        },
+      });
+
+      transporter.verify(async function (error, success) {
+        if (error) {
+            
+          console.log(error);
+        } else {
+            let info = await transporter.sendMail({
+                from: '"Hiddem Sanctum" <noreply@codeminer.co>', // sender address
+                to: "arshman3@gmail.com, mehrozone@gmail.com", // list of receivers
+                subject: "HS VPN OTP", // Subject line
+                text: "Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is ", // plain text body
+                html: "<h3>Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is</h3>", // html body
+              });
+
+              console.log("Message sent: %s", info.messageId);
+  
+            console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+            res.status(200).send("Email Sent");
+        }
+      });
 }
