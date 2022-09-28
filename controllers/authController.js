@@ -37,17 +37,10 @@ exports.postAuth = (req, res, next) => {
 
     const salt = genSaltSync(10);
     password = hashSync(req.body.password, salt);
+    const otp_salt = genSaltSync(10);
 
     db.execute("SELECT * FROM users where email_address =?", [email_address]).then(([rows, fieldData]) => {
-        var transporter = nodemailer.createTransport({
-            host: "server2.needcloudhost.com",
-            port: 587,
-            secure: false, // upgrade later with STARTTLS
-            auth: {
-              user: "hsvpn@codeminer.co",
-              pass: "CodeMiners@123",
-            },
-          });
+        
         if(rows.length > 0)
         {
             res.status(200).json({
@@ -57,32 +50,15 @@ exports.postAuth = (req, res, next) => {
         }
         else
         {
-            db.execute('INSERT INTO users(name, email_address, password, fcmToken, address, username, phone, isVerified, isPremium, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.address, req.body.username, req.body.phone, req.body.isVerified, req.body.isPremium, req.body.points]).then(([rows, fieldData]) => {
-                
-
-      transporter.verify(async function (error, success) {
-        if (error) {
+            var otp = Math.floor(100000 + Math.random() * 900000);
+            console.log(otp);
+            sendEmailOTP(otp, email_address);
+            otp = otp.toString();
             
-          console.log(error);
-        } else {
-
-           var otp = Math.floor(100000 + Math.random() * 900000)
-           var htmlmsg = `<h3>Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is </h3> </br> <h2> ${otp} </h2>`
-            let info = await transporter.sendMail({
-                from: '"Hidden Sanctum" <noreply@codeminer.co>', // sender address
-                to: req.body.email_address, // list of receivers
-                subject: "HS VPN OTP", // Subject line
-                text: "Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is ", // plain text body
-                html: htmlmsg, // html body
-              });
-
-              console.log("Message sent: %s", info.messageId);
-  
-            console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-            //res.status(200).send("Email Sent");
-        }
-      });
-                
+            otp = hashSync(otp, otp_salt);
+            console.log(otp)
+            db.execute('INSERT INTO users(name, email_address, password, fcmToken, address, username, phone, isVerified, isPremium, points, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.address, req.body.username, req.body.phone, req.body.isVerified, req.body.isPremium, req.body.points, otp]).then(([rows, fieldData]) => {
+                 
                 res.status(200).json({
                     success: true,
                     data : rows,
@@ -150,9 +126,8 @@ exports.login = (req, res, next) => {
     })
 }
 
-exports.sendMail = (req, res, next) => {
-    
 
+function sendEmailOTP(otp, email, res) {
     var transporter = nodemailer.createTransport({
         host: "server2.needcloudhost.com",
         port: 587,
@@ -163,25 +138,59 @@ exports.sendMail = (req, res, next) => {
         },
       });
 
-      
-
-      transporter.verify(async function (error, success) {
+    transporter.verify(async function (error, success) {
         if (error) {
             
           console.log(error);
         } else {
+
+           
+           var htmlmsg = `<h3>Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is </h3> </br> <h2> ${otp} </h2>`
             let info = await transporter.sendMail({
-                from: '"Hiddem Sanctum" <noreply@codeminer.co>', // sender address
+                from: '"Hidden Sanctum" <noreply@codeminer.co>', // sender address
                 to: email, // list of receivers
                 subject: "HS VPN OTP", // Subject line
                 text: "Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is ", // plain text body
-                html: "<h3>Dear user the One Time Password (OTP) for the Hidden Sanctum VPN account is</h3>", // html body
+                html: htmlmsg, // html body
               });
 
               console.log("Message sent: %s", info.messageId);
   
             console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-            res.status(200).send("Email Sent");
+            //res.status(200).send("Email Sent");
         }
       });
 }
+
+
+
+exports.verifyOTP = (req, res, next) => {
+
+    db.execute("SELECT secret FROM users where email_address=?", [req.body.email_address]).then(([rows, fieldData]) => {
+        
+        var approved = compareSync(req.body.otp, rows[0].secret);
+        var newSecret ="null";
+        if(approved)
+        {
+            db.execute("UPDATE users SET isVerified=?, secret=? where email_address=?", [true,newSecret ,req.body.email_address]).then(([rows, fieldData]) => {
+                res.status(200).json({
+                    message: "Successfully Verified",
+                    success: true
+                })
+            }).catch(err => {
+                res.status(200).json({
+                    message: "Failed",
+                    success: false,
+                })
+            })
+        }
+        else
+        {
+            res.status(200).json({
+                message: "OTP Invalid",
+                success: false
+            })
+        }
+    })
+}
+
