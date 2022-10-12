@@ -163,6 +163,35 @@ function sendEmailOTP(otp, email, res) {
 }
 
 
+exports.forgotPass = (req, res, next) => {
+    db.execute("SELECT * FROM users where email_address=?", [req.body.email_address]).then(([rows, fieldData]) => {
+        if(rows.length > 0)
+        {
+            var otp = Math.floor(100000 + Math.random() * 900000);
+            const otp_salt = genSaltSync(10);
+            console.log(otp);
+            otp = otp.toString();
+            sendEmailOTP(otp, req.body.email_address);
+            otp = hashSync(otp, otp_salt);
+            
+            db.execute("UPDATE users SET secret=? WHERE email_address=?", [otp, req.body.email_address]).then(([rows, fieldData]) => {
+                res.status(200).json({
+                    status: true,
+                    message: "The OTP has been regenerated and sent to the email"
+                })
+            })
+        }
+        else
+        {
+            res.status(200).json({
+                status: false,
+                message: "The email address is not linked with any account"
+            })
+        }
+    })
+}
+
+
 
 exports.verifyOTP = (req, res, next) => {
 
