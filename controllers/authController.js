@@ -57,7 +57,7 @@ exports.postAuth = (req, res, next) => {
             
             otp = hashSync(otp, otp_salt);
             console.log(otp)
-            db.execute('INSERT INTO users(name, email_address, password, fcmToken, address, username, phone, isVerified, isPremium, points, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.address, req.body.username, req.body.phone, req.body.isVerified, req.body.isPremium, req.body.points, otp]).then(([rows, fieldData]) => {
+            db.execute('INSERT INTO users(name, email_address, password, fcmToken, username, isVerified, isPremium, points, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.username, req.body.isVerified, req.body.isPremium, req.body.points, otp]).then(([rows, fieldData]) => {
                  
                 res.status(200).json({
                     success: true,
@@ -188,6 +188,25 @@ exports.forgotPass = (req, res, next) => {
                 message: "The email address is not linked with any account"
             })
         }
+    })
+}
+
+exports.updatePass = (req, res, next) => {
+
+    const salt = genSaltSync(10);
+    req.body.password = hashSync(req.body.password, salt);
+
+    db.execute("UPDATE users SET password=? where email_address=?", [req.body.password, req.body.email_address]).then(([rows, fieldData]) => {
+        res.status(200).json({
+            status: true,
+            message: "The Password has been Successfully Updated"
+        })
+    }).catch((err) => {
+        res.status(200).json({
+            success: false,
+            error: err,
+            message: "The password has not been updated"
+        })
     })
 }
 
