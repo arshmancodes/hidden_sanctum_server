@@ -39,7 +39,7 @@ exports.postAuth = (req, res, next) => {
     password = hashSync(req.body.password, salt);
     const otp_salt = genSaltSync(10);
 
-    db.execute("SELECT * FROM users where email_address =?", [email_address]).then(([rows, fieldData]) => {
+    db.execute("SELECT * FROM users where email =?", [email_address]).then(([rows, fieldData]) => {
         
         if(rows.length > 0)
         {
@@ -57,7 +57,7 @@ exports.postAuth = (req, res, next) => {
             
             otp = hashSync(otp, otp_salt);
             console.log(otp)
-            db.execute('INSERT INTO users(name, email_address, password, fcmToken, username, isVerified, isPremium, points, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.username, req.body.isVerified, req.body.isPremium, req.body.points, otp]).then(([rows, fieldData]) => {
+            db.execute('INSERT INTO users(name, email, password, fcmToken, username, isVerified, isPremium, points, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, email_address, password, fcmToken, req.body.username, req.body.isVerified, req.body.isPremium, req.body.points, otp]).then(([rows, fieldData]) => {
                  
                 res.status(200).json({
                     success: true,
@@ -95,7 +95,7 @@ exports.login = (req, res, next) => {
     var password = req.body.password;
 
 
-    db.execute('SELECT * FROM users WHERE email_address=?', [req.body.email_address]).then(([rows, fieldData]) => {
+    db.execute('SELECT * FROM users WHERE email=?', [req.body.email_address]).then(([rows, fieldData]) => {
         if(rows.length > 0) 
         {
             const validPassword = compareSync(req.body.password, rows[0].password);
@@ -164,7 +164,7 @@ function sendEmailOTP(otp, email, res) {
 
 
 exports.forgotPass = (req, res, next) => {
-    db.execute("SELECT * FROM users where email_address=?", [req.body.email_address]).then(([rows, fieldData]) => {
+    db.execute("SELECT * FROM users where email=?", [req.body.email_address]).then(([rows, fieldData]) => {
         if(rows.length > 0)
         {
             var otp = Math.floor(100000 + Math.random() * 900000);
@@ -174,7 +174,7 @@ exports.forgotPass = (req, res, next) => {
             sendEmailOTP(otp, req.body.email_address);
             otp = hashSync(otp, otp_salt);
             
-            db.execute("UPDATE users SET secret=? WHERE email_address=?", [otp, req.body.email_address]).then(([rows, fieldData]) => {
+            db.execute("UPDATE users SET secret=? WHERE email=?", [otp, req.body.email_address]).then(([rows, fieldData]) => {
                 res.status(200).json({
                     status: true,
                     message: "The OTP has been regenerated and sent to the email"
@@ -192,7 +192,7 @@ exports.forgotPass = (req, res, next) => {
 }
 
 exports.updatePoints = (req, res) => {
-    db.execute("UPDATE users SET points=? WHERE email_address=?", [req.body.points, req.body.email_address]).then(([rows, fieldData]) => {
+    db.execute("UPDATE users SET points=? WHERE email=?", [req.body.points, req.body.email_address]).then(([rows, fieldData]) => {
         res.status(200).json({
             data: rows,
             message: "User points Updated Successfully",
@@ -211,7 +211,7 @@ exports.updatePass = (req, res, next) => {
     const salt = genSaltSync(10);
     req.body.password = hashSync(req.body.password, salt);
 
-    db.execute("UPDATE users SET password=? where email_address=?", [req.body.password, req.body.email_address]).then(([rows, fieldData]) => {
+    db.execute("UPDATE users SET password=? where email=?", [req.body.password, req.body.email_address]).then(([rows, fieldData]) => {
         res.status(200).json({
             status: true,
             message: "The Password has been Successfully Updated"
@@ -229,13 +229,13 @@ exports.updatePass = (req, res, next) => {
 
 exports.verifyOTP = (req, res, next) => {
 
-    db.execute("SELECT secret FROM users where email_address=?", [req.body.email_address]).then(([rows, fieldData]) => {
+    db.execute("SELECT secret FROM users where email=?", [req.body.email_address]).then(([rows, fieldData]) => {
         
         var approved = compareSync(req.body.otp, rows[0].secret);
         var newSecret ="null";
         if(approved)
         {
-            db.execute("UPDATE users SET isVerified=?, secret=? where email_address=?", [true,newSecret ,req.body.email_address]).then(([rows, fieldData]) => {
+            db.execute("UPDATE users SET isVerified=?, secret=? where email=?", [true,newSecret ,req.body.email_address]).then(([rows, fieldData]) => {
                 res.status(200).json({
                     message: "Successfully Verified",
                     success: true
