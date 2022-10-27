@@ -10,6 +10,7 @@ router.post('/checkUser', authController.checkUser);
 router.post('/verifyOTP', authController.verifyOTP);
 router.post('/resendOTP', authController.forgotPass);
 router.post('/updatePass', authController.updatePass);
+router.post('/updatePoints', authController.updatePoints);
 
 
 

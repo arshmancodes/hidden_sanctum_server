@@ -17,6 +17,7 @@ module.exports.getAll = function(req, res) {
     })
 }
 
+
 module.exports.postServer = (req, res) => {
 
     db.execute("INSERT INTO servers(server_name, region, hostname, server_username, server_password, flag_code, premium_server) VALUES (?, ?, ?, ?, ?, ?, ?)", [req.body.server_name ,req.body.region, req.body.hostname, req.body.server_username, req.body.server_password, req.body.flag_code, req.body.premium_server]).then(([rows, fieldData]) => {

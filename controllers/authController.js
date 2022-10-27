@@ -191,6 +191,21 @@ exports.forgotPass = (req, res, next) => {
     })
 }
 
+exports.updatePoints = (req, res) => {
+    db.execute("UPDATE users SET points=? WHERE email_address=?", [req.body.points, req.body.email_address]).then(([rows, fieldData]) => {
+        res.status(200).json({
+            data: rows,
+            message: "User points Updated Successfully",
+            success : true
+        })
+    }).catch((err) => {
+        res.status(200).json({
+            message: err,
+            success: false
+        })
+    })
+}
+
 exports.updatePass = (req, res, next) => {
 
     const salt = genSaltSync(10);

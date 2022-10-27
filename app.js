@@ -12,8 +12,9 @@ app.use(cors(), (req, res, next) => {
 })
 
 
-app.use('/auth', authRoutes);
-app.use('/server', serverRoutes);
+app.use('/auth', authRoutes); // BASE_URL+/auth
+app.use('/server', serverRoutes); // BASE_URL+/server  (e.g localhost:3000/server)
+
 
 app.listen(3000, () => {
     console.log("Server running at 3000");
