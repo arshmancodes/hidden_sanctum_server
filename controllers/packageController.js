@@ -37,6 +37,7 @@ exports.updatePackage = (req, res, next) => {
         })
     }).catch((err) => {
         res.status(200).json({
+            error : err,
             message: "There was an issue updating the package details",
             success: false,
         })
