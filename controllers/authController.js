@@ -257,3 +257,19 @@ exports.verifyOTP = (req, res, next) => {
     })
 }
 
+
+exports.getUserByEmail = (req, res, next) => {
+    db.execute('SELECT * from users WHERE email_address=?', [req.body.email_address]).then(([rows, fieldData]) => {
+        res.status(200).json({
+            message: "User data has been fetched",
+            data : rows,
+            success : true,
+        })
+    }).catch((err) => {
+        res.status(200).json({
+            message: "The user data not found",
+            success: false,
+            error: err
+        })
+    })
+}
