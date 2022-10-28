@@ -30,7 +30,7 @@ exports.deletePackage = (req, res, next) =>{
 }
 
 exports.updatePackage = (req, res, next) => {
-    db.execute('UPDATE packages SET amount=?, currency=?, package=?, duration=?, WHERE id=?', [req.body.amount, req.body.currency, req.body.package, req.body.duration, req.body.id]).then(([rows, fieldData]) => {
+    db.execute('UPDATE packages SET amount=?, currency=?, package=?, duration=? WHERE id=?', [req.body.amount, req.body.currency, req.body.package, req.body.duration, req.body.id]).then(([rows, fieldData]) => {
         res.status(200).json({
             message: "The Package has been updated",
             success: true,
