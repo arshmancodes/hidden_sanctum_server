@@ -21,10 +21,17 @@ exports.viewPaymentData = (req, res, next) => {
 
 exports.postPayment = (req, res, next) => {
     db.execute('INSERT into payments(email, username, package_name, amount, next_payment) VALUES(?, ?, ?, ?, ?)', [req.body.email, req.body.username, req.body.package_name, req.body.amount, req.body.next_payment]).then(([rows, fieldData]) => {
-        res.status(200).json({
-            message: "The Payment data has been added",
-            success: true,
-            data: rows,
+        db.execute('UPDATE users SET isPremium=? WHERE email=?', [1, req.body.email]).then(([rows, fieldData]) => {
+            res.status(200).json({
+                message: "The Payment data has been added",
+                success: true,
+                data: rows,
+            })
+        }).catch((err) => {
+            res.status(200).json({
+                message: "There was an issue updating the User Status",
+                success: false
+            })
         })
     }).catch((err) => {
         res.status(200).json({

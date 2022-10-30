@@ -163,6 +163,7 @@ function sendEmailOTP(otp, email, res) {
 }
 
 
+
 exports.forgotPass = (req, res, next) => {
     db.execute("SELECT * FROM users where email=?", [req.body.email_address]).then(([rows, fieldData]) => {
         if(rows.length > 0)
